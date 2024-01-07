@@ -53,16 +53,17 @@ layout: default
   </header>
 
   <article class="post-content">
-    {% if page.toc and page.toc.beginning %}
-    <div id="table-of-contents">
-      <!-- {% toc %} Removed/Commented out -->
-    </div>
-    <hr>
-    {% endif %}
-    <div id="markdown-content">
-      {{ content }}
-    </div>
+      {% if page.toc and page.toc.beginning %}
+      <div id="table-of-contents">
+        {% comment %}{% toc %}{% endcomment %}
+      </div>
+      <hr>
+      {% endif %}
+      <div id="markdown-content">
+        {{ content }}
+      </div>
   </article>
+
 
   {%- if page.related_publications != null and page.related_publications.size > 0 -%}
   {% assign publications = page.related_publications | replace: ", ", "," | split: "," | join: "|" %}
