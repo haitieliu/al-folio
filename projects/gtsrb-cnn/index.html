@@ -1,0 +1,355 @@
+<!DOCTYPE html> <html lang="en"> <head> <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <title>Traffic Sign Classification | Haitie Liu</title> <meta name="author" content="Haitie Liu"> <meta name="description" content="CNN Traffic Sign Classification"> <meta name="keywords" content="jekyll, jekyll-theme, academic-website, portfolio-website"> <link rel="stylesheet" href="/al-folio/assets/css/bootstrap.min.css?a4b3f509e79c54a512b890d73235ef04"> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/css/mdb.min.css" integrity="sha256-jpjYvU3G3N6nrrBwXJoVEYI/0zw8htfFnhT9ljN3JJw=" crossorigin="anonymous"> <link defer rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.22.1/dist/bootstrap-table.min.css"> <link rel="stylesheet" href="/al-folio/assets/css/academicons.min.css?f0b7046b84e425c55f3463ac249818f5"> <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons"> <link rel="stylesheet" href="/al-folio/assets/css/jekyll-pygments-themes-github.css?19f3075a2d19613090fe9e16b564e1fe" media="" id="highlight_theme_light"> <link rel="shortcut icon" href="data:image/svg+xml,&lt;svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22&gt;&lt;text%20y=%22.9em%22%20font-size=%2290%22&gt;%E2%9A%9B%EF%B8%8F&lt;/text&gt;&lt;/svg&gt;"> <link rel="stylesheet" href="/al-folio/assets/css/main.css?d41d8cd98f00b204e9800998ecf8427e"> <link rel="canonical" href="https://alshedivat.github.io/al-folio/projects/gtsrb-cnn/"> <link rel="stylesheet" href="/al-folio/assets/css/jekyll-pygments-themes-native.css?e74e74bf055e5729d44a7d031a5ca6a5" media="none" id="highlight_theme_dark"> <script src="/al-folio/assets/js/theme.js?6185d15ea1982787ad7f435576553d64"></script> </head> <body class="fixed-top-nav "> <header> <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top"> <div class="container"> <a class="navbar-brand title font-weight-lighter" href="/al-folio/"><span class="font-weight-bold">Haitie </span>Liu</a> <button class="navbar-toggler collapsed ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar top-bar"></span> <span class="icon-bar middle-bar"></span> <span class="icon-bar bottom-bar"></span> </button> <div class="collapse navbar-collapse text-right" id="navbarNav"> <ul class="navbar-nav ml-auto flex-nowrap"> <li class="nav-item "> <a class="nav-link" href="/al-folio/">about</a> </li> <li class="nav-item active"> <a class="nav-link" href="/al-folio/projects/">projects<span class="sr-only">(current)</span></a> </li> <li class="nav-item "> <a class="nav-link" href="/al-folio/repositories/">repositories</a> </li> <li class="nav-item "> <a class="nav-link" href="/al-folio/cv/">cv</a> </li> <li class="toggle-container"> <button id="light-toggle" title="Change theme"> <i class="fa-solid fa-moon"></i> <i class="fa-solid fa-sun"></i> </button> </li> </ul> </div> </div> </nav> <progress id="progress" value="0"> <div class="progress-container"> <span class="progress-bar"></span> </div> </progress> </header> <div class="container mt-5"> <div class="post"> <header class="post-header"> <h1 class="post-title">Traffic Sign Classification</h1> <p class="post-description">CNN Traffic Sign Classification</p> </header> <article> <ul> <li>Built and trained a Convolutional Neural Network (CNN) using TensorFlow to classify 43 types of traffic signs, using over 60,000 images from the German Traffic Sign Recognition Benchmark (GTSRB) dataset.</li> <li>Applied advanced techniques such as max pooling and dropout in neural network architecture to enhance training efficiency.</li> <li>Utilized OpenCV for high-quality image preprocessing and data augmentation, significantly increasing the model’s robustness.</li> <li>Experimented with various neural network architectures and parameters, optimizing for accuracy, and achieving a 98% accuracy rate in traffic sign classification.</li> </ul> <h2 id="importing-required-libraries">Importing Required Libraries</h2> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="n">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">import</span> <span class="n">os</span>
+<span class="kn">import</span> <span class="n">cv2</span>
+<span class="kn">import</span> <span class="n">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="n">tensorflow</span> <span class="k">as</span> <span class="n">tf</span>
+<span class="kn">from</span> <span class="n">tensorflow</span> <span class="kn">import</span> <span class="n">keras</span>
+<span class="kn">from</span> <span class="n">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span> <span class="n">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="n">tensorflow.keras.preprocessing.image</span> <span class="kn">import</span> <span class="n">ImageDataGenerator</span>
+<span class="kn">from</span> <span class="n">tensorflow.keras.optimizers</span> <span class="kn">import</span> <span class="n">Adam</span>
+<span class="kn">from</span> <span class="n">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span>
+<span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="nf">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="n">matplotlib</span> <span class="kn">import</span> <span class="n">style</span>
+<span class="n">style</span><span class="p">.</span><span class="nf">use</span><span class="p">(</span><span class="sh">'</span><span class="s">fivethirtyeight</span><span class="sh">'</span><span class="p">)</span>
+</code></pre></div></div> <h2 id="assigning-path-for-dataset">Assigning Path for Dataset</h2> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">data_dir</span> <span class="o">=</span> <span class="sh">'</span><span class="s">../input/gtsrb-german-traffic-sign</span><span class="sh">'</span>
+<span class="n">train_path</span> <span class="o">=</span> <span class="sh">'</span><span class="s">../input/gtsrb-german-traffic-sign/Train</span><span class="sh">'</span>
+<span class="n">test_path</span> <span class="o">=</span> <span class="sh">'</span><span class="s">../input/gtsrb-german-traffic-sign/</span><span class="sh">'</span>
+
+<span class="c1"># Resizing the images to 30x30x3
+</span><span class="n">IMG_HEIGHT</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="n">IMG_WIDTH</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="n">channels</span> <span class="o">=</span> <span class="mi">3</span>
+</code></pre></div></div> <h2 id="finding-total-classes">Finding Total Classes</h2> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">NUM_CATEGORIES</span> <span class="o">=</span> <span class="nf">len</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="nf">listdir</span><span class="p">(</span><span class="n">train_path</span><span class="p">))</span>
+<span class="n">NUM_CATEGORIES</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>43
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Label Overview
+</span><span class="n">classes</span> <span class="o">=</span> <span class="p">{</span> <span class="mi">0</span><span class="p">:</span><span class="sh">'</span><span class="s">Speed limit (20km/h)</span><span class="sh">'</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">:</span><span class="sh">'</span><span class="s">Speed limit (30km/h)</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">2</span><span class="p">:</span><span class="sh">'</span><span class="s">Speed limit (50km/h)</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">3</span><span class="p">:</span><span class="sh">'</span><span class="s">Speed limit (60km/h)</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">4</span><span class="p">:</span><span class="sh">'</span><span class="s">Speed limit (70km/h)</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">5</span><span class="p">:</span><span class="sh">'</span><span class="s">Speed limit (80km/h)</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">6</span><span class="p">:</span><span class="sh">'</span><span class="s">End of speed limit (80km/h)</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">7</span><span class="p">:</span><span class="sh">'</span><span class="s">Speed limit (100km/h)</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">8</span><span class="p">:</span><span class="sh">'</span><span class="s">Speed limit (120km/h)</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">9</span><span class="p">:</span><span class="sh">'</span><span class="s">No passing</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">10</span><span class="p">:</span><span class="sh">'</span><span class="s">No passing veh over 3.5 tons</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">11</span><span class="p">:</span><span class="sh">'</span><span class="s">Right-of-way at intersection</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">12</span><span class="p">:</span><span class="sh">'</span><span class="s">Priority road</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">13</span><span class="p">:</span><span class="sh">'</span><span class="s">Yield</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">14</span><span class="p">:</span><span class="sh">'</span><span class="s">Stop</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">15</span><span class="p">:</span><span class="sh">'</span><span class="s">No vehicles</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">16</span><span class="p">:</span><span class="sh">'</span><span class="s">Veh &gt; 3.5 tons prohibited</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">17</span><span class="p">:</span><span class="sh">'</span><span class="s">No entry</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">18</span><span class="p">:</span><span class="sh">'</span><span class="s">General caution</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">19</span><span class="p">:</span><span class="sh">'</span><span class="s">Dangerous curve left</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">20</span><span class="p">:</span><span class="sh">'</span><span class="s">Dangerous curve right</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">21</span><span class="p">:</span><span class="sh">'</span><span class="s">Double curve</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">22</span><span class="p">:</span><span class="sh">'</span><span class="s">Bumpy road</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">23</span><span class="p">:</span><span class="sh">'</span><span class="s">Slippery road</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">24</span><span class="p">:</span><span class="sh">'</span><span class="s">Road narrows on the right</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">25</span><span class="p">:</span><span class="sh">'</span><span class="s">Road work</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">26</span><span class="p">:</span><span class="sh">'</span><span class="s">Traffic signals</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">27</span><span class="p">:</span><span class="sh">'</span><span class="s">Pedestrians</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">28</span><span class="p">:</span><span class="sh">'</span><span class="s">Children crossing</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">29</span><span class="p">:</span><span class="sh">'</span><span class="s">Bicycles crossing</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">30</span><span class="p">:</span><span class="sh">'</span><span class="s">Beware of ice/snow</span><span class="sh">'</span><span class="p">,</span>
+            <span class="mi">31</span><span class="p">:</span><span class="sh">'</span><span class="s">Wild animals crossing</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">32</span><span class="p">:</span><span class="sh">'</span><span class="s">End speed + passing limits</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">33</span><span class="p">:</span><span class="sh">'</span><span class="s">Turn right ahead</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">34</span><span class="p">:</span><span class="sh">'</span><span class="s">Turn left ahead</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">35</span><span class="p">:</span><span class="sh">'</span><span class="s">Ahead only</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">36</span><span class="p">:</span><span class="sh">'</span><span class="s">Go straight or right</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">37</span><span class="p">:</span><span class="sh">'</span><span class="s">Go straight or left</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">38</span><span class="p">:</span><span class="sh">'</span><span class="s">Keep right</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">39</span><span class="p">:</span><span class="sh">'</span><span class="s">Keep left</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">40</span><span class="p">:</span><span class="sh">'</span><span class="s">Roundabout mandatory</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">41</span><span class="p">:</span><span class="sh">'</span><span class="s">End of no passing</span><span class="sh">'</span><span class="p">,</span> 
+            <span class="mi">42</span><span class="p">:</span><span class="sh">'</span><span class="s">End no passing veh &gt; 3.5 tons</span><span class="sh">'</span> <span class="p">}</span>
+</code></pre></div></div> <h2 id="visualizing-the-dataset">Visualizing The Dataset</h2> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">folders</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="nf">listdir</span><span class="p">(</span><span class="n">train_path</span><span class="p">)</span>
+
+<span class="n">train_number</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">class_num</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="n">folders</span><span class="p">:</span>
+    <span class="n">train_files</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="nf">listdir</span><span class="p">(</span><span class="n">train_path</span> <span class="o">+</span> <span class="sh">'</span><span class="s">/</span><span class="sh">'</span> <span class="o">+</span> <span class="n">folder</span><span class="p">)</span>
+    <span class="n">train_number</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nf">len</span><span class="p">(</span><span class="n">train_files</span><span class="p">))</span>
+    <span class="n">class_num</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">classes</span><span class="p">[</span><span class="nf">int</span><span class="p">(</span><span class="n">folder</span><span class="p">)])</span>
+    
+<span class="c1"># Sorting the dataset on the basis of number of images in each class
+</span><span class="n">zipped_lists</span> <span class="o">=</span> <span class="nf">zip</span><span class="p">(</span><span class="n">train_number</span><span class="p">,</span> <span class="n">class_num</span><span class="p">)</span>
+<span class="n">sorted_pairs</span> <span class="o">=</span> <span class="nf">sorted</span><span class="p">(</span><span class="n">zipped_lists</span><span class="p">)</span>
+<span class="n">tuples</span> <span class="o">=</span> <span class="nf">zip</span><span class="p">(</span><span class="o">*</span><span class="n">sorted_pairs</span><span class="p">)</span>
+<span class="n">train_number</span><span class="p">,</span> <span class="n">class_num</span> <span class="o">=</span> <span class="p">[</span> <span class="nf">list</span><span class="p">(</span><span class="nb">tuple</span><span class="p">)</span> <span class="k">for</span> <span class="nb">tuple</span> <span class="ow">in</span>  <span class="n">tuples</span><span class="p">]</span>
+
+<span class="c1"># Plotting the number of images in each class
+</span><span class="n">plt</span><span class="p">.</span><span class="nf">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>  
+<span class="n">plt</span><span class="p">.</span><span class="nf">bar</span><span class="p">(</span><span class="n">class_num</span><span class="p">,</span> <span class="n">train_number</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">xticks</span><span class="p">(</span><span class="n">class_num</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="sh">'</span><span class="s">vertical</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">show</span><span class="p">()</span>
+</code></pre></div></div> <p><img src="/al-folio/assets/img/GTSRB/output_9_0.png" alt="png"></p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Visualizing 25 random images from test data
+</span><span class="kn">import</span> <span class="n">random</span>
+<span class="kn">from</span> <span class="n">matplotlib.image</span> <span class="kn">import</span> <span class="n">imread</span>
+
+<span class="n">test</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nf">read_csv</span><span class="p">(</span><span class="n">data_dir</span> <span class="o">+</span> <span class="sh">'</span><span class="s">/Test.csv</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">imgs</span> <span class="o">=</span> <span class="n">test</span><span class="p">[</span><span class="sh">"</span><span class="s">Path</span><span class="sh">"</span><span class="p">].</span><span class="n">values</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="nf">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span><span class="mi">25</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">26</span><span class="p">):</span>
+    <span class="n">plt</span><span class="p">.</span><span class="nf">subplot</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">random_img_path</span> <span class="o">=</span> <span class="n">data_dir</span> <span class="o">+</span> <span class="sh">'</span><span class="s">/</span><span class="sh">'</span> <span class="o">+</span> <span class="n">random</span><span class="p">.</span><span class="nf">choice</span><span class="p">(</span><span class="n">imgs</span><span class="p">)</span>
+    <span class="n">rand_img</span> <span class="o">=</span> <span class="nf">imread</span><span class="p">(</span><span class="n">random_img_path</span><span class="p">)</span>
+    <span class="n">plt</span><span class="p">.</span><span class="nf">imshow</span><span class="p">(</span><span class="n">rand_img</span><span class="p">)</span>
+    <span class="n">plt</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+    <span class="n">plt</span><span class="p">.</span><span class="nf">xlabel</span><span class="p">(</span><span class="n">rand_img</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span><span class="c1">#width of image
+</span>    <span class="n">plt</span><span class="p">.</span><span class="nf">ylabel</span><span class="p">(</span><span class="n">rand_img</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span><span class="c1">#height of image
+</span></code></pre></div></div> <p><img src="/al-folio/assets/img/GTSRB/output_10_0.png" alt="png"></p> <h2 id="collecting-the-training-data">Collecting the Training Data</h2> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">image_data</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">image_labels</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">NUM_CATEGORIES</span><span class="p">):</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">data_dir</span> <span class="o">+</span> <span class="sh">'</span><span class="s">/Train/</span><span class="sh">'</span> <span class="o">+</span> <span class="nf">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">images</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="nf">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">images</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">cv2</span><span class="p">.</span><span class="nf">imread</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="sh">'</span><span class="s">/</span><span class="sh">'</span> <span class="o">+</span> <span class="n">img</span><span class="p">)</span>
+            <span class="n">image_fromarray</span> <span class="o">=</span> <span class="n">Image</span><span class="p">.</span><span class="nf">fromarray</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="sh">'</span><span class="s">RGB</span><span class="sh">'</span><span class="p">)</span>
+            <span class="n">resize_image</span> <span class="o">=</span> <span class="n">image_fromarray</span><span class="p">.</span><span class="nf">resize</span><span class="p">((</span><span class="n">IMG_HEIGHT</span><span class="p">,</span> <span class="n">IMG_WIDTH</span><span class="p">))</span>
+            <span class="n">image_data</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">(</span><span class="n">resize_image</span><span class="p">))</span>
+            <span class="n">image_labels</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Error in </span><span class="sh">"</span> <span class="o">+</span> <span class="n">img</span><span class="p">)</span>
+
+<span class="c1"># Changing the list to numpy array
+</span><span class="n">image_data</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">(</span><span class="n">image_data</span><span class="p">)</span>
+<span class="n">image_labels</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">(</span><span class="n">image_labels</span><span class="p">)</span>
+
+<span class="nf">print</span><span class="p">(</span><span class="n">image_data</span><span class="p">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">image_labels</span><span class="p">.</span><span class="n">shape</span><span class="p">)</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(39209, 30, 30, 3) (39209,)
+</code></pre></div></div> <h2 id="shuffling-the-training-data">Shuffling the training data</h2> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">shuffle_indexes</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">arange</span><span class="p">(</span><span class="n">image_data</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="nf">shuffle</span><span class="p">(</span><span class="n">shuffle_indexes</span><span class="p">)</span>
+<span class="n">image_data</span> <span class="o">=</span> <span class="n">image_data</span><span class="p">[</span><span class="n">shuffle_indexes</span><span class="p">]</span>
+<span class="n">image_labels</span> <span class="o">=</span> <span class="n">image_labels</span><span class="p">[</span><span class="n">shuffle_indexes</span><span class="p">]</span>
+</code></pre></div></div> <h2 id="splitting-the-data-into-train-and-validation-set">Splitting the data into train and validation set</h2> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">X_train</span><span class="p">,</span> <span class="n">X_val</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_val</span> <span class="o">=</span> <span class="nf">train_test_split</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">image_labels</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">X_train</span> <span class="o">=</span> <span class="n">X_train</span><span class="o">/</span><span class="mi">255</span> 
+<span class="n">X_val</span> <span class="o">=</span> <span class="n">X_val</span><span class="o">/</span><span class="mi">255</span>
+
+<span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">X_train.shape</span><span class="sh">"</span><span class="p">,</span> <span class="n">X_train</span><span class="p">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">X_valid.shape</span><span class="sh">"</span><span class="p">,</span> <span class="n">X_val</span><span class="p">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">y_train.shape</span><span class="sh">"</span><span class="p">,</span> <span class="n">y_train</span><span class="p">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">y_valid.shape</span><span class="sh">"</span><span class="p">,</span> <span class="n">y_val</span><span class="p">.</span><span class="n">shape</span><span class="p">)</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>X_train.shape (27446, 30, 30, 3)
+X_valid.shape (11763, 30, 30, 3)
+y_train.shape (27446,)
+y_valid.shape (11763,)
+</code></pre></div></div> <h2 id="one-hot-encoding-the-labels">One hot encoding the labels</h2> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">y_train</span> <span class="o">=</span> <span class="n">keras</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="nf">to_categorical</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">NUM_CATEGORIES</span><span class="p">)</span>
+<span class="n">y_val</span> <span class="o">=</span> <span class="n">keras</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="nf">to_categorical</span><span class="p">(</span><span class="n">y_val</span><span class="p">,</span> <span class="n">NUM_CATEGORIES</span><span class="p">)</span>
+
+<span class="nf">print</span><span class="p">(</span><span class="n">y_train</span><span class="p">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">y_val</span><span class="p">.</span><span class="n">shape</span><span class="p">)</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(27446, 43)
+(11763, 43)
+</code></pre></div></div> <h2 id="making-the-model">Making the model</h2> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">model</span> <span class="o">=</span> <span class="n">keras</span><span class="p">.</span><span class="n">models</span><span class="p">.</span><span class="nc">Sequential</span><span class="p">([</span>    
+    <span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="nc">Conv2D</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="sh">'</span><span class="s">relu</span><span class="sh">'</span><span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="n">IMG_HEIGHT</span><span class="p">,</span><span class="n">IMG_WIDTH</span><span class="p">,</span><span class="n">channels</span><span class="p">)),</span>
+    <span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="nc">Conv2D</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="sh">'</span><span class="s">relu</span><span class="sh">'</span><span class="p">),</span>
+    <span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="nc">MaxPool2D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
+    <span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="nc">BatchNormalization</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span>
+    
+    <span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="nc">Conv2D</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="sh">'</span><span class="s">relu</span><span class="sh">'</span><span class="p">),</span>
+    <span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="nc">Conv2D</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="sh">'</span><span class="s">relu</span><span class="sh">'</span><span class="p">),</span>
+    <span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="nc">MaxPool2D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
+    <span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="nc">BatchNormalization</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span>
+    
+    <span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="nc">Flatten</span><span class="p">(),</span>
+    <span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="nc">Dense</span><span class="p">(</span><span class="mi">512</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="sh">'</span><span class="s">relu</span><span class="sh">'</span><span class="p">),</span>
+    <span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="nc">BatchNormalization</span><span class="p">(),</span>
+    <span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="nc">Dropout</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+    
+    <span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="nc">Dense</span><span class="p">(</span><span class="mi">43</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="sh">'</span><span class="s">softmax</span><span class="sh">'</span><span class="p">)</span>
+<span class="p">])</span>
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">lr</span> <span class="o">=</span> <span class="mf">0.001</span>
+<span class="n">epochs</span> <span class="o">=</span> <span class="mi">30</span>
+
+<span class="n">opt</span> <span class="o">=</span> <span class="nc">Adam</span><span class="p">(</span><span class="n">lr</span><span class="o">=</span><span class="n">lr</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">lr</span> <span class="o">/</span> <span class="p">(</span><span class="n">epochs</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">))</span>
+<span class="n">model</span><span class="p">.</span><span class="nf">compile</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="sh">'</span><span class="s">categorical_crossentropy</span><span class="sh">'</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="n">opt</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="sh">'</span><span class="s">accuracy</span><span class="sh">'</span><span class="p">])</span>
+</code></pre></div></div> <h2 id="augmenting-the-data-and-training-the-model">Augmenting the data and training the model</h2> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">aug</span> <span class="o">=</span> <span class="nc">ImageDataGenerator</span><span class="p">(</span>
+    <span class="n">rotation_range</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">zoom_range</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span>
+    <span class="n">width_shift_range</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">height_shift_range</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">shear_range</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span>
+    <span class="n">horizontal_flip</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">vertical_flip</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">fill_mode</span><span class="o">=</span><span class="sh">"</span><span class="s">nearest</span><span class="sh">"</span><span class="p">)</span>
+
+<span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="nf">fit</span><span class="p">(</span><span class="n">aug</span><span class="p">.</span><span class="nf">flow</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">),</span> <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span> <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">X_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">))</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Epoch 1/30
+858/858 [==============================] - 16s 18ms/step - loss: 1.1347 - accuracy: 0.6976 - val_loss: 0.1190 - val_accuracy: 0.9612
+Epoch 2/30
+858/858 [==============================] - 16s 18ms/step - loss: 0.1845 - accuracy: 0.9443 - val_loss: 0.0397 - val_accuracy: 0.9870
+Epoch 3/30
+858/858 [==============================] - 15s 18ms/step - loss: 0.1081 - accuracy: 0.9674 - val_loss: 0.0325 - val_accuracy: 0.9901
+Epoch 4/30
+858/858 [==============================] - 15s 18ms/step - loss: 0.0790 - accuracy: 0.9756 - val_loss: 0.0231 - val_accuracy: 0.9929
+Epoch 5/30
+858/858 [==============================] - 15s 18ms/step - loss: 0.0715 - accuracy: 0.9776 - val_loss: 0.0218 - val_accuracy: 0.9931
+Epoch 6/30
+858/858 [==============================] - 15s 18ms/step - loss: 0.0586 - accuracy: 0.9813 - val_loss: 0.0076 - val_accuracy: 0.9984
+Epoch 7/30
+858/858 [==============================] - 15s 18ms/step - loss: 0.0504 - accuracy: 0.9850 - val_loss: 0.0090 - val_accuracy: 0.9974
+Epoch 8/30
+858/858 [==============================] - 15s 18ms/step - loss: 0.0417 - accuracy: 0.9868 - val_loss: 0.0387 - val_accuracy: 0.9878
+Epoch 9/30
+858/858 [==============================] - 15s 18ms/step - loss: 0.0400 - accuracy: 0.9873 - val_loss: 0.0079 - val_accuracy: 0.9980
+Epoch 10/30
+858/858 [==============================] - 15s 18ms/step - loss: 0.0322 - accuracy: 0.9902 - val_loss: 0.0082 - val_accuracy: 0.9975
+Epoch 11/30
+858/858 [==============================] - 15s 18ms/step - loss: 0.0362 - accuracy: 0.9891 - val_loss: 0.0098 - val_accuracy: 0.9969
+Epoch 12/30
+858/858 [==============================] - 15s 18ms/step - loss: 0.0354 - accuracy: 0.9891 - val_loss: 0.0058 - val_accuracy: 0.9986
+Epoch 13/30
+858/858 [==============================] - 15s 18ms/step - loss: 0.0316 - accuracy: 0.9906 - val_loss: 0.0061 - val_accuracy: 0.9981
+Epoch 14/30
+858/858 [==============================] - 15s 18ms/step - loss: 0.0224 - accuracy: 0.9932 - val_loss: 0.0043 - val_accuracy: 0.9983
+Epoch 15/30
+858/858 [==============================] - 15s 18ms/step - loss: 0.0208 - accuracy: 0.9934 - val_loss: 0.0046 - val_accuracy: 0.9990
+Epoch 16/30
+858/858 [==============================] - 15s 17ms/step - loss: 0.0187 - accuracy: 0.9939 - val_loss: 0.0044 - val_accuracy: 0.9986
+Epoch 17/30
+858/858 [==============================] - 15s 18ms/step - loss: 0.0233 - accuracy: 0.9931 - val_loss: 0.0046 - val_accuracy: 0.9986
+Epoch 18/30
+858/858 [==============================] - 15s 18ms/step - loss: 0.0183 - accuracy: 0.9942 - val_loss: 0.0052 - val_accuracy: 0.9989
+Epoch 19/30
+858/858 [==============================] - 16s 18ms/step - loss: 0.0186 - accuracy: 0.9943 - val_loss: 0.0049 - val_accuracy: 0.9986
+Epoch 20/30
+858/858 [==============================] - 15s 18ms/step - loss: 0.0140 - accuracy: 0.9957 - val_loss: 0.0041 - val_accuracy: 0.9992
+Epoch 21/30
+858/858 [==============================] - 15s 18ms/step - loss: 0.0139 - accuracy: 0.9949 - val_loss: 0.0034 - val_accuracy: 0.9991
+Epoch 22/30
+858/858 [==============================] - 16s 18ms/step - loss: 0.0138 - accuracy: 0.9959 - val_loss: 0.0173 - val_accuracy: 0.9957
+Epoch 23/30
+858/858 [==============================] - 16s 18ms/step - loss: 0.0131 - accuracy: 0.9960 - val_loss: 0.0027 - val_accuracy: 0.9992
+Epoch 24/30
+858/858 [==============================] - 15s 18ms/step - loss: 0.0121 - accuracy: 0.9962 - val_loss: 0.0028 - val_accuracy: 0.9994
+Epoch 25/30
+858/858 [==============================] - 16s 18ms/step - loss: 0.0129 - accuracy: 0.9957 - val_loss: 0.0025 - val_accuracy: 0.9991
+Epoch 26/30
+858/858 [==============================] - 15s 18ms/step - loss: 0.0103 - accuracy: 0.9968 - val_loss: 0.0027 - val_accuracy: 0.9993
+Epoch 27/30
+858/858 [==============================] - 16s 18ms/step - loss: 0.0092 - accuracy: 0.9972 - val_loss: 0.0037 - val_accuracy: 0.9991
+Epoch 28/30
+858/858 [==============================] - 15s 18ms/step - loss: 0.0132 - accuracy: 0.9962 - val_loss: 0.0022 - val_accuracy: 0.9996
+Epoch 29/30
+858/858 [==============================] - 16s 18ms/step - loss: 0.0103 - accuracy: 0.9968 - val_loss: 0.0016 - val_accuracy: 0.9996
+Epoch 30/30
+858/858 [==============================] - 15s 18ms/step - loss: 0.0070 - accuracy: 0.9976 - val_loss: 0.0018 - val_accuracy: 0.9994
+</code></pre></div></div> <h2 id="evaluating-the-model">Evaluating the model</h2> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pd</span><span class="p">.</span><span class="nc">DataFrame</span><span class="p">(</span><span class="n">history</span><span class="p">.</span><span class="n">history</span><span class="p">).</span><span class="nf">plot</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">gca</span><span class="p">().</span><span class="nf">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">show</span><span class="p">()</span>
+</code></pre></div></div> <p><img src="/al-folio/assets/img/GTSRB/output_25_0.png" alt="png"></p> <h2 id="loading-the-test-data-and-running-the-predictions">Loading the test data and running the predictions</h2> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">test</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nf">read_csv</span><span class="p">(</span><span class="n">data_dir</span> <span class="o">+</span> <span class="sh">'</span><span class="s">/Test.csv</span><span class="sh">'</span><span class="p">)</span>
+
+<span class="n">labels</span> <span class="o">=</span> <span class="n">test</span><span class="p">[</span><span class="sh">"</span><span class="s">ClassId</span><span class="sh">"</span><span class="p">].</span><span class="n">values</span>
+<span class="n">imgs</span> <span class="o">=</span> <span class="n">test</span><span class="p">[</span><span class="sh">"</span><span class="s">Path</span><span class="sh">"</span><span class="p">].</span><span class="n">values</span>
+
+<span class="n">data</span> <span class="o">=</span><span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">imgs</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">cv2</span><span class="p">.</span><span class="nf">imread</span><span class="p">(</span><span class="n">data_dir</span> <span class="o">+</span> <span class="sh">'</span><span class="s">/</span><span class="sh">'</span> <span class="o">+</span><span class="n">img</span><span class="p">)</span>
+        <span class="n">image_fromarray</span> <span class="o">=</span> <span class="n">Image</span><span class="p">.</span><span class="nf">fromarray</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="sh">'</span><span class="s">RGB</span><span class="sh">'</span><span class="p">)</span>
+        <span class="n">resize_image</span> <span class="o">=</span> <span class="n">image_fromarray</span><span class="p">.</span><span class="nf">resize</span><span class="p">((</span><span class="n">IMG_HEIGHT</span><span class="p">,</span> <span class="n">IMG_WIDTH</span><span class="p">))</span>
+        <span class="n">data</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">(</span><span class="n">resize_image</span><span class="p">))</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Error in </span><span class="sh">"</span> <span class="o">+</span> <span class="n">img</span><span class="p">)</span>
+<span class="n">X_test</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="n">X_test</span> <span class="o">=</span> <span class="n">X_test</span><span class="o">/</span><span class="mi">255</span>
+
+<span class="n">pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="nf">predict_classes</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+<span class="c1">#Accuracy with the test data
+</span><span class="nf">print</span><span class="p">(</span><span class="sh">'</span><span class="s">Test Data accuracy: </span><span class="sh">'</span><span class="p">,</span><span class="nf">accuracy_score</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">pred</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Test Data accuracy:  98.53523357086303
+</code></pre></div></div> <h2 id="visualizing-the-confusion-matrix">Visualizing the confusion matrix</h2> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">sklearn.metrics</span> <span class="kn">import</span> <span class="n">confusion_matrix</span>
+<span class="n">cf</span> <span class="o">=</span> <span class="nf">confusion_matrix</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">pred</span><span class="p">)</span>
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">seaborn</span> <span class="k">as</span> <span class="n">sns</span>
+<span class="n">df_cm</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nc">DataFrame</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="n">classes</span><span class="p">,</span>  <span class="n">columns</span> <span class="o">=</span> <span class="n">classes</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="nf">figure</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">))</span>
+<span class="n">sns</span><span class="p">.</span><span class="nf">heatmap</span><span class="p">(</span><span class="n">df_cm</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.axes._subplots.AxesSubplot at 0x7e81f8f93290&gt;
+</code></pre></div></div> <p><img src="/al-folio/assets/img/GTSRB/output_30_1.png" alt="png"></p> <h2 id="classification-report">Classification report</h2> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">sklearn.metrics</span> <span class="kn">import</span> <span class="n">classification_report</span>
+
+<span class="nf">print</span><span class="p">(</span><span class="nf">classification_report</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">pred</span><span class="p">))</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>              precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00        60
+           1       0.99      1.00      0.99       720
+           2       1.00      1.00      1.00       750
+           3       0.99      0.99      0.99       450
+           4       1.00      0.99      1.00       660
+           5       0.98      1.00      0.99       630
+           6       1.00      0.95      0.97       150
+           7       1.00      1.00      1.00       450
+           8       1.00      0.99      0.99       450
+           9       0.99      1.00      0.99       480
+          10       1.00      1.00      1.00       660
+          11       0.96      0.96      0.96       420
+          12       1.00      0.97      0.98       690
+          13       0.99      1.00      0.99       720
+          14       1.00      1.00      1.00       270
+          15       0.90      1.00      0.95       210
+          16       1.00      1.00      1.00       150
+          17       1.00      1.00      1.00       360
+          18       1.00      0.99      0.99       390
+          19       1.00      1.00      1.00        60
+          20       0.93      1.00      0.96        90
+          21       0.96      0.98      0.97        90
+          22       1.00      0.77      0.87       120
+          23       0.96      1.00      0.98       150
+          24       1.00      0.98      0.99        90
+          25       0.94      0.99      0.97       480
+          26       0.99      1.00      0.99       180
+          27       0.88      0.50      0.64        60
+          28       0.97      0.98      0.97       150
+          29       0.95      1.00      0.97        90
+          30       0.85      0.92      0.88       150
+          31       1.00      0.99      0.99       270
+          32       0.95      1.00      0.98        60
+          33       1.00      1.00      1.00       210
+          34       1.00      1.00      1.00       120
+          35       0.99      1.00      1.00       390
+          36       0.98      1.00      0.99       120
+          37       1.00      1.00      1.00        60
+          38       1.00      0.99      0.99       690
+          39       0.98      0.99      0.98        90
+          40       0.96      0.97      0.96        90
+          41       1.00      0.95      0.97        60
+          42       1.00      0.97      0.98        90
+
+    accuracy                           0.99     12630
+   macro avg       0.98      0.97      0.97     12630
+weighted avg       0.99      0.99      0.98     12630
+</code></pre></div></div> <h2 id="predictions-on-test-data">Predictions on Test Data</h2> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="nf">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">25</span><span class="p">))</span>
+<span class="n">start_index</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">25</span><span class="p">):</span>
+    <span class="n">plt</span><span class="p">.</span><span class="nf">subplot</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">plt</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">plt</span><span class="p">.</span><span class="nf">xticks</span><span class="p">([])</span>
+    <span class="n">plt</span><span class="p">.</span><span class="nf">yticks</span><span class="p">([])</span>
+
+    <span class="n">prediction</span> <span class="o">=</span> <span class="n">pred</span><span class="p">[</span><span class="n">start_index</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span>
+    <span class="n">actual</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">start_index</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span>
+    <span class="n">col</span> <span class="o">=</span> <span class="sh">'</span><span class="s">g</span><span class="sh">'</span> <span class="k">if</span> <span class="n">prediction</span> <span class="o">==</span> <span class="n">actual</span> <span class="k">else</span> <span class="sh">'</span><span class="s">r</span><span class="sh">'</span>
+
+    <span class="n">plt</span><span class="p">.</span><span class="nf">xlabel</span><span class="p">(</span><span class="sh">'</span><span class="s">Actual={} || Pred={}</span><span class="sh">'</span><span class="p">.</span><span class="nf">format</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">prediction</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">col</span><span class="p">)</span>
+    <span class="n">plt</span><span class="p">.</span><span class="nf">imshow</span><span class="p">(</span><span class="n">X_test</span><span class="p">[</span><span class="n">start_index</span> <span class="o">+</span> <span class="n">i</span><span class="p">])</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="nf">show</span><span class="p">()</span>
+
+</code></pre></div></div> <p><img src="/al-folio/assets/img/GTSRB/output_34_0.png" alt="png"></p> </article> </div> </div> <footer class="fixed-bottom"> <div class="container mt-0"> © Copyright 2024 . Powered by <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Last edited: 2024-01-07 </div> </footer> <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> <script src="/al-folio/assets/js/bootstrap.bundle.min.js"></script> <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/js/mdb.min.js" integrity="sha256-NdbiivsvWt7VYCt6hYNT3h/th9vSTL4EDWeGs5SN3DA=" crossorigin="anonymous"></script> <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script> <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@4/imagesloaded.pkgd.min.js"></script> <script defer src="/al-folio/assets/js/masonry.js" type="text/javascript"></script> <script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.0.8/dist/medium-zoom.min.js" integrity="sha256-7PhEpEWEW0XXQ0k6kQrPKwuoIomz8R8IYyuU1Qew4P8=" crossorigin="anonymous"></script> <script defer src="/al-folio/assets/js/zoom.js?7b30caa5023af4af8408a472dc4e1ebb"></script> <script defer src="https://unpkg.com/bootstrap-table@1.22.1/dist/bootstrap-table.min.js"></script> <script src="/al-folio/assets/js/no_defer.js?d633890033921b33e0ceb13d22340a9c"></script> <script defer src="/al-folio/assets/js/common.js?acdb9690d7641b2f8d40529018c71a01"></script> <script defer src="/al-folio/assets/js/copy_code.js?9b43d6e67ddc7c0855b1478ee4c48c2d" type="text/javascript"></script> <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script> <script async src="https://badge.dimensions.ai/badge.js"></script> <script type="text/javascript">window.MathJax={tex:{tags:"ams"}};</script> <script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/tex-mml-chtml.js"></script> <script defer src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script> <script type="text/javascript">function progressBarSetup(){"max"in document.createElement("progress")?(initializeProgressElement(),$(document).on("scroll",function(){progressBar.attr({value:getCurrentScrollPosition()})}),$(window).on("resize",initializeProgressElement)):(resizeProgressBar(),$(document).on("scroll",resizeProgressBar),$(window).on("resize",resizeProgressBar))}function getCurrentScrollPosition(){return $(window).scrollTop()}function initializeProgressElement(){let e=$("#navbar").outerHeight(!0);$("body").css({"padding-top":e}),$("progress-container").css({"padding-top":e}),progressBar.css({top:e}),progressBar.attr({max:getDistanceToScroll(),value:getCurrentScrollPosition()})}function getDistanceToScroll(){return $(document).height()-$(window).height()}function resizeProgressBar(){progressBar.css({width:getWidthPercentage()+"%"})}function getWidthPercentage(){return getCurrentScrollPosition()/getDistanceToScroll()*100}const progressBar=$("#progress");window.onload=function(){setTimeout(progressBarSetup,50)};</script> </body> </html>

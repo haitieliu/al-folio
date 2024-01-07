@@ -1,0 +1,608 @@
+<!DOCTYPE html> <html lang="en"> <head> <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <title>Talent Management Solutions | Haitie Liu</title> <meta name="author" content="Haitie Liu"> <meta name="description" content="Help company reduce attrition rate"> <meta name="keywords" content="jekyll, jekyll-theme, academic-website, portfolio-website"> <link rel="stylesheet" href="/al-folio/assets/css/bootstrap.min.css?a4b3f509e79c54a512b890d73235ef04"> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/css/mdb.min.css" integrity="sha256-jpjYvU3G3N6nrrBwXJoVEYI/0zw8htfFnhT9ljN3JJw=" crossorigin="anonymous"> <link defer rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.22.1/dist/bootstrap-table.min.css"> <link rel="stylesheet" href="/al-folio/assets/css/academicons.min.css?f0b7046b84e425c55f3463ac249818f5"> <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons"> <link rel="stylesheet" href="/al-folio/assets/css/jekyll-pygments-themes-github.css?19f3075a2d19613090fe9e16b564e1fe" media="" id="highlight_theme_light"> <link rel="shortcut icon" href="data:image/svg+xml,&lt;svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22&gt;&lt;text%20y=%22.9em%22%20font-size=%2290%22&gt;%E2%9A%9B%EF%B8%8F&lt;/text&gt;&lt;/svg&gt;"> <link rel="stylesheet" href="/al-folio/assets/css/main.css?d41d8cd98f00b204e9800998ecf8427e"> <link rel="canonical" href="https://alshedivat.github.io/al-folio/projects/Attrition%20analysis/"> <link rel="stylesheet" href="/al-folio/assets/css/jekyll-pygments-themes-native.css?e74e74bf055e5729d44a7d031a5ca6a5" media="none" id="highlight_theme_dark"> <script src="/al-folio/assets/js/theme.js?6185d15ea1982787ad7f435576553d64"></script> </head> <body class="fixed-top-nav "> <header> <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top"> <div class="container"> <a class="navbar-brand title font-weight-lighter" href="/al-folio/"><span class="font-weight-bold">Haitie </span>Liu</a> <button class="navbar-toggler collapsed ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar top-bar"></span> <span class="icon-bar middle-bar"></span> <span class="icon-bar bottom-bar"></span> </button> <div class="collapse navbar-collapse text-right" id="navbarNav"> <ul class="navbar-nav ml-auto flex-nowrap"> <li class="nav-item "> <a class="nav-link" href="/al-folio/">about</a> </li> <li class="nav-item active"> <a class="nav-link" href="/al-folio/projects/">projects<span class="sr-only">(current)</span></a> </li> <li class="nav-item "> <a class="nav-link" href="/al-folio/repositories/">repositories</a> </li> <li class="nav-item "> <a class="nav-link" href="/al-folio/cv/">cv</a> </li> <li class="toggle-container"> <button id="light-toggle" title="Change theme"> <i class="fa-solid fa-moon"></i> <i class="fa-solid fa-sun"></i> </button> </li> </ul> </div> </div> </nav> <progress id="progress" value="0"> <div class="progress-container"> <span class="progress-bar"></span> </div> </progress> </header> <div class="container mt-5"> <div class="post"> <header class="post-header"> <h1 class="post-title">Talent Management Solutions</h1> <p class="post-description">Help company reduce attrition rate</p> </header> <article> <ul> <li> <p>Welcome to this Attrition analysis, we are acting as a talent management analytics company for Fortune 100 company Frito Lay to predict employee turnover. As our lead data scientist, I will analyze existing employee data to identify the top three factors contributing to attrition and job role-specific trends. The analysis will involve robust experimentation and appropriate visualization in R, with a predictive model built to forecast employee turnover.</p> </li> <li> <p>We have also developed algorithm simulator App for easier digestion of future data set into streamlined process. Users will be able to voluntarily upload the data set and choose the corresponding ML model to find out the best fitting results for future attrition analysis. The R shiny app is made available below.</p> </li> <li> <p><a href="https://haitieliu.shinyapps.io/Project2/" rel="external nofollow noopener" target="_blank">Use Rshiny App</a></p> </li> </ul> <p><img src="/al-folio/assets/img/Rscript_files/figure-markdown_strict/logo.png" alt=""></p> <h2 id="prepration">Prepration</h2> <p>loading needed packages</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>###loading libraries
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(caret)
+library(class)
+library(e1071)
+library(GGally)
+library(ROCit)
+</code></pre></div></div> <h2 id="data-preparation">Data Preparation</h2> <ul> <li> <p>Loading correct data set into R</p> </li> <li> <p>Looking for Na Values and outlier</p> </li> </ul> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#load data set
+data1=read.csv(file = "CaseStudy2-data.csv")
+#sum(is.na(data1))
+#Changing Col order
+data1=data1[c(3,1,2,4:36)]
+#Checking the imbalance of the data set
+#table(data1$Attrition)
+# 730/140 = 5:1
+# Attrition is roughly 0.2/1
+</code></pre></div></div> <h2 id="data-prepration-step-2">Data Prepration Step 2</h2> <ul> <li> <p>Factorize data set for easier interpretation and analysis</p> </li> <li> <p>For categorical variables, taking the approach to factorize first</p> </li> <li> <p>Split the data into people who left and people who stayed</p> </li> <li> <p>Then conducting T-test against all other columns</p> </li> <li> <p>Finding out the least P value to determine its significance</p> </li> </ul> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#factorize the data and scale it. Adding column response assign it with Yes and No
+data_scaled = 
+  data1 %&gt;%
+  mutate_if(is.character, as.factor) %&gt;%
+  mutate_if(is.factor, ~as.integer(factor(.)) - 1) 
+
+
+preproc=preProcess(data_scaled)
+data_scaled=predict(preproc,data_scaled)  
+data_scaled=data_scaled%&gt;%      
+      mutate(response = ifelse(as.numeric(factor(data1[,"Attrition"])) == 1, "Yes", "No"))
+
+#Conducting T-Test on all other columns
+Ttest=data_scaled%&gt;%
+      select(-{"Attrition"}) %&gt;%
+      select_if(~ !all(is.na(.)))%&gt;%
+      pivot_longer(cols = -response, names_to = "variable", values_to = "value") %&gt;%
+      group_by(variable) %&gt;%
+      summarize(pvalue = sprintf("%.15f", t.test(value ~ response)$p.value))%&gt;%
+      filter(pvalue &lt;= 0.05)
+
+dataX =  data_scaled %&gt;%
+  select(Ttest$variable, Attrition)
+    
+    if (!is.factor(dataX[["Attrition"]])) {
+      dataX[["Attrition"]] = as.numeric(factor(dataX[["Attrition"]]))-1
+    }
+
+data2=dataX
+data3=data2
+</code></pre></div></div> <h2 id="exploratory-data-analysis">Exploratory Data Analysis</h2> <ul> <li> <p>Dive deep into Job sanctification</p> </li> <li> <p>What are the top three factors leading people to leave</p> </li> <li> <p>Intricate relationship between each factor to another</p> </li> <li> <p>Mechanics to prevent higher attrition in the future</p> </li> </ul> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#EDA
+
+
+data1_summary &lt;- data1 %&gt;%
+  group_by(JobRole) %&gt;%
+  summarize(mean_JobSatisfaction = mean(as.numeric(JobSatisfaction)))
+
+ggplot(data1_summary, aes(x = JobRole, y = mean_JobSatisfaction, fill = JobRole)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Job Satisfaction by Job Role",
+       subtitle = "Comparison of Job Satisfaction Levels by Job Role",
+       x = "Job Role",
+       y = "Job Satisfaction",
+       fill = "Job Role") +
+  ggthemes::theme_clean() +
+  theme(axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
+        panel.spacing.x = unit(2, "cm")) +
+  guides(fill = FALSE)
+</code></pre></div></div> <p><img src="/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-4-1.png" alt=""></p> <ul> <li>Comment: we can see that the most satisfied job roles are sales representative and research scientist</li> </ul> <p><br> <br></p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># plot Job Satisfaction by MaritalStatus
+data1_summary2 &lt;- data1 %&gt;%
+  group_by(MaritalStatus) %&gt;%
+  summarize(mean_JobSatisfaction = mean(as.numeric(JobSatisfaction)))
+
+ggplot(data1_summary2, aes(x = MaritalStatus, y = mean_JobSatisfaction, fill = MaritalStatus)) + 
+  geom_bar(stat = "identity") +
+  labs(title = "Job Satisfaction by Marital Status",
+       subtitle = "Comparison of Job Satisfaction Levels by Marital Status",
+       x = "Marital Status",
+       y = "Mean Job Satisfaction",
+       fill = "Marital Status") +
+  ggthemes::theme_clean() +
+  theme(axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
+        panel.spacing.x = unit(2, "cm")) +
+  guides(fill = FALSE)
+</code></pre></div></div> <p><img src="/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-5-1.png" alt=""></p> <ul> <li>Comment: single workers are likely to be more satisfied with their current role <br> <br> </li> </ul> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>data1_summary2 &lt;- data1 %&gt;%
+  group_by(JobSatisfaction) %&gt;%
+  summarize(mean_JobSatisfaction = mean(as.numeric(DistanceFromHome)))
+
+ggplot(data1_summary2, aes(x = JobSatisfaction, y = mean_JobSatisfaction, fill = JobSatisfaction)) + 
+  geom_bar(stat = "identity") +
+  labs(title = "Job Satisfaction by DistanceFromHome",
+       subtitle = "Comparison of Job Satisfaction Levels by DistanceFromHome",
+       x = "DistanceFromHome",
+       y = "Job Satisfaction",
+       fill = "DistanceFromHome") +
+  ggthemes::theme_clean() +
+  theme(axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
+        panel.spacing.x = unit(2, "cm")) +
+  guides(fill = FALSE)
+</code></pre></div></div> <p><img src="/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-6-1.png" alt=""></p> <ul> <li>Comment: the more distant you are from work the less satisfied you are <br> <br> </li> </ul> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  ggplot(data2, aes(x = Attrition, y = MonthlyIncome)) +
+    geom_point(color = "darkblue", size = 3, alpha = 0.5) +
+    labs(title = "Attrition vs Monthly Income",
+         subtitle = "Scatterplot of Attrition with Monthly Income",
+         x = "Attrition",
+         y = "Monthly Income") +
+    ggthemes::theme_clean() +
+    geom_smooth(method = "lm", se = FALSE, color = "red", size = 1.2) +
+    theme(plot.title = element_text(size = 20, face = "bold", hjust = 0.5),
+          plot.subtitle = element_text(size = 16, hjust = 0.5),
+          axis.title = element_text(size = 14),
+          axis.text = element_text(size = 12),
+          legend.position = "none")
+</code></pre></div></div> <p><img src="/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-7-1.png" alt=""></p> <ul> <li>Comment: monthly income is negatively correlated with attrition, increase monthly income is liley to reduce attrition rate <br> <br> </li> </ul> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  ggplot(data2, aes(x = Attrition, y = OverTime)) +
+    geom_point(color = "#c44e52") +
+    labs(title = "Attrition vs OverTime",
+         subtitle = "Scatterplot of Attrition with OverTime",
+         x = "Attrition",
+         y = "OverTime") +
+    geom_smooth(method = "lm", se = FALSE, color = "darkblue", size = 1.2) +
+    theme_bw()
+</code></pre></div></div> <p><img src="/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-8-1.png" alt=""></p> <ul> <li>Comment: attrition seems to be positively correlated with attrition, more overtime could mean more attrition <br> <br> </li> </ul> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  # Plot a scatterplot of TotalWorkingYears by Attrition
+  ggplot(data2, aes(x = Attrition, y = TotalWorkingYears)) +
+    geom_point(color = "#3c78d8") +
+    labs(title = "Attrition vs Total Working Years",
+         subtitle = "Scatterplot of Attrition with Total Working Years",
+         x = "Attrition",
+         y = "Total Working Years") +
+    geom_smooth(method = "lm", se = FALSE, color = "#c44e52", size = 1.2) +
+    theme_bw()
+</code></pre></div></div> <p>![]files/figure-markdown_strict/unnamed-chunk-9-1.png)</p> <ul> <li>Comment: total working years within the company is likely to reduce attrition rate <br> <br> </li> </ul> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  ggplot(data2, aes(x = Attrition, y = JobInvolvement)) +
+    geom_point(fill = "#4c72b0", alpha = 0.7) +
+    labs(title = "Attrition vs Job Involvement",
+         subtitle = "Comparison of JobInvolvement Levels with Job Involvement",
+         x = "Attrition",
+         y = "Job Involvement") +
+    
+    geom_smooth(method = "lm", se = FALSE, color = "darkblue", size = 1.2)+
+    theme_minimal() +
+    theme(plot.title = element_text(color = "#222222", size = 24, face = "bold"),
+          plot.subtitle = element_text(color = "#444444", size = 16),
+          axis.title = element_text(color = "#222222", size = 14),
+          axis.text = element_text(color = "#222222", size = 12),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.border = element_blank(),
+          legend.position = "none",
+          plot.background = element_rect(fill = "white"),
+          panel.background = element_rect(fill = "white"))
+</code></pre></div></div> <p><img src="/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-10-1.png" alt=""></p> <ul> <li>Comment: fostering a good job involvement (communication and relationship around the workplace) could reduce attrition rate. <br> <br> </li> </ul> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  ggplot(data2, aes(x = Attrition, y = MaritalStatus, color = factor(MaritalStatus))) +
+    geom_point(size = 3, alpha = 0.5) +
+    labs(title = "Attrition vs Marital Status",
+         subtitle = "Scatterplot of Attrition with Marital Status",
+         x = "Attrition",
+         y = "Marital Status") +
+    geom_smooth(method = "lm", se = FALSE, color = "darkblue", size = 1.2) +
+    theme_bw() +
+    scale_color_manual(values = c("#1F77B4", "#FF7F0E", "#2CA02C"),
+                       name = "Marital Status",
+                       labels = c("Divorced", "Married", "Single"))
+</code></pre></div></div> <p><img src="/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-11-1.png" alt=""></p> <ul> <li>Comment: Single workers could be more likely to leave the company than married and divorced workers <br> <br> </li> </ul> <h2 id="fitting-the-model-knn">Fitting the model (KNN)</h2> <ul> <li> <p>Ran the experiment for at least 45000 iterations</p> </li> <li> <p>Deep dive into hyper parameter tuning</p> </li> <li> <p>Finding out the best hypermarkets to use for future predictions</p> </li> </ul> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#Saving a different sets of labels for Navie Bays analysis
+#pvalues[9,4]="Yes"
+#pvalues[17,4]="Yes"
+#pvalues[19,4]="Yes"
+#factorsNB=pvalues%&gt;%filter(NB == "Yes")
+#dataZ2=dataZ2[,factorsNB$columns]
+#dataZ2=dataZ2[c(2,1,3:20)]
+###split data sets into 70% test set and 30% training set
+
+
+sample_rows=sample(dim(data2)[1],dim(data2)[1]*0.7)
+train_sample=data2[sample_rows,]
+test_sample=data2[-sample_rows,]
+
+
+#classify using KNN external validation
+classification=knn(train_sample[,1:17],test_sample[,1:17],train_sample$Attrition,k=25,prob=TRUE)
+#table(test_sample$Attrition,classification)
+cm=confusionMatrix(table(test_sample$Attrition,classification))
+
+probs &lt;- ifelse(classification == "0", attributes(classification)$prob, 1 - attributes(classification)$prob)
+      new_class2 &lt;- ifelse(probs &gt; 0.8, "0", "1")
+      
+a=rocit(score=as.numeric(as.factor(new_class2)),class=as.numeric(test_sample$Attrition))
+#cm
+#a$AUC
+#plot(a)
+
+
+#######################################KNN
+#KNN
+#KNN
+
+
+# Set seed for reproducibility
+set.seed(123)
+
+data3 &lt;- data2
+sample_rows &lt;- sample(dim(data3)[1], dim(data3)[1] * 0.7)
+train_sample &lt;- data3[sample_rows, ]
+test_sample &lt;- data3[-sample_rows, ]
+
+# Initialize empty data frame to store AUC values
+auc_df_knn &lt;- data.frame(iters = integer(),
+                          ks = integer(),
+                          thresholds = numeric(),
+                          aucs = numeric(),
+                          stringsAsFactors = FALSE)
+
+# Loop through 100 iterations
+for (i in 1:100) {
+  # Randomly sample training data
+  sample_rows &lt;- sample(dim(data3)[1], dim(data3)[1] * 0.7)
+  train_sample &lt;- data3[sample_rows, ]
+  test_sample &lt;- data3[-sample_rows, ]
+  
+  # Loop through hyperparameters k = 1 to 50
+  for (k in 1:50) {
+    # Loop through thresholds from 0.1 to 0.9
+    for (threshold in seq(0.1, 0.9, 0.1)) {
+      # Fit KNN model and make predictions
+      knn_fit &lt;- knn(train = train_sample[,1:17], test = test_sample[,1:17], cl = train_sample$Attrition, k = k, prob = TRUE)
+      probs2 &lt;- ifelse(knn_fit == "0", attributes(knn_fit)$prob, 1 - attributes(knn_fit)$prob)
+      new_class2 &lt;- ifelse(probs2 &gt; threshold, "0", "1")
+      # Calculate AUC and add to auc_df_knn
+      auc &lt;- rocit(score = as.numeric(as.factor(new_class2)), class = as.numeric(test_sample$Attrition))$AUC
+      auc_df_knn &lt;- rbind(auc_df_knn, data.frame(iters = i, ks = k, thresholds = threshold, aucs = auc))
+    }
+  }
+}
+
+
+
+
+avg_auc_knn &lt;- aggregate(aucs ~ ks + thresholds, data = auc_df_knn, FUN = mean)
+
+# Plot average AUC vs. k, with lines for each value of threshold
+ggplot(avg_auc_knn, aes(x = ks, y = aucs, group = thresholds, color = thresholds)) +
+  geom_line() +
+  xlab("k") +
+  ylab("Average AUC") +
+  ggtitle("Average AUC by k and Threshold") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
+</code></pre></div></div> <p><img src="/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-12-1.png" alt=""></p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Print first 10 rows of auc_df_knn
+#head(auc_df_knn, 10)
+
+
+
+
+
+
+
+####knncv
+####Doing the same thing with Knn internal cross validation
+data3=data2
+sample_rows &lt;- sample(dim(data3)[1], dim(data3)[1] * 0.7)
+train_sample &lt;- data3[sample_rows, ]
+test_sample &lt;- data3[-sample_rows, ]
+
+
+knncv &lt;- knn.cv(train = train_sample[,1:17], cl = as.numeric(train_sample$Attrition), k =21, prob = TRUE)
+
+probs = ifelse(knncv == "0",attributes(knncv)$prob, 1- attributes(knncv)$prob)
+
+NewClass = ifelse(probs &gt; 0.9, "0", "1")
+
+#table(NewClass,train_sample$Attrition)
+#confusionMatrix(table(NewClass,train_sample$Attrition))
+#a=rocit(score=as.numeric(as.factor(NewClass)),class=as.numeric(train_sample$Attrition))
+
+#a$AUC
+#plot(a)
+
+
+
+# Set seed for reproducibility
+set.seed(123)
+
+data3 &lt;- data2
+sample_rows &lt;- sample(dim(data3)[1], dim(data3)[1] * 0.7)
+train_sample &lt;- data3[sample_rows, ]
+test_sample &lt;- data3[-sample_rows, ]
+
+# Initialize empty data frame to store AUC values
+auc_df &lt;- data.frame(iter = integer(),
+                     k = integer(),
+                     threshold = numeric(),
+                     auc = numeric(),
+                     stringsAsFactors = FALSE)
+
+# Loop through 100 iterations
+for (i in 1:100) {
+  # Randomly sample training data
+  sample_rows &lt;- sample(dim(data3)[1], dim(data3)[1] * 0.7)
+  train_sample &lt;- data3[sample_rows, ]
+  
+  # Loop through hyperparameters k = 1 to 50
+  for (k in 1:50) {
+    # Loop through thresholds from 0.1 to 0.9
+    for (threshold in seq(0.1, 0.9, 0.1)) {
+      # Fit KNN model and make predictions
+      knncv &lt;- knn.cv(train = train_sample[,1:17], cl = as.numeric(train_sample$Attrition), k = k, prob = TRUE)
+      probs &lt;- ifelse(knncv == "0", attributes(knncv)$prob, 1 - attributes(knncv)$prob)
+      new_class &lt;- ifelse(probs &gt; threshold, "0", "1")
+      
+      # Calculate AUC and add to auc_df
+      auc &lt;- rocit(score = as.numeric(as.factor(new_class)), class = as.numeric(train_sample$Attrition))$AUC
+      auc_df &lt;- rbind(auc_df, data.frame(iter = i, k = k, threshold = threshold, auc = auc))
+    }
+  }
+}
+
+# Print first 10 rows of auc_df
+#head(auc_df, 10)
+
+
+# Calculate mean AUC for each value of k
+mean_auc &lt;- auc_df %&gt;%
+  group_by(k) %&gt;%
+  summarise(mean_auc = mean(auc))
+
+# Create ggplot
+#ggplot(mean_auc, aes(x = k, y = mean_auc)) +
+#  geom_line() +
+#  labs(x = "k", y = "Average AUC")
+
+
+# Calculate average AUC for each combination of k and threshold
+avg_auc &lt;- aggregate(auc ~ k + threshold, data = auc_df, FUN = mean)
+
+# Plot average AUC vs. threshold, with lines for each value of k
+ggplot(avg_auc, aes(x = threshold, y = auc, group = k)) +
+  geom_line() +
+  xlab("Threshold") +
+  ylab("Average AUC") +
+  ggtitle("Average AUC by Threshold and k") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
+</code></pre></div></div> <p><img src="/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-12-2.png" alt=""></p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Plot average AUC vs. k, with lines for each value of threshold
+ggplot(avg_auc, aes(x = k, y = auc, group = threshold, color = threshold)) +
+  geom_line() +
+  xlab("k") +
+  ylab("Average AUC") +
+  ggtitle("Average AUC by k and Threshold") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
+</code></pre></div></div> <p><img src="/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-12-3.png" alt=""></p> <ul> <li>Comment: According to the chart above the best hyper parameters for Knn and Knn.cv is when threshold equals to 0.8 and 0.9, and when k equals to 21 and 41 <br> <br> </li> </ul> <h2 id="model-selection-navie-bays">Model Selection (Navie Bays)</h2> <ul> <li> <p>Compare results of the model above</p> </li> <li> <p>Ran at least 9000 iterations to determine the best results and the potential of this ML model</p> </li> <li> <p>Use these tests to tune the best hyper parameters</p> </li> </ul> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>###################Training on Naviebays, standardized data set with categorical variable
+
+nb_df &lt;- data.frame(iterations = integer(),
+                     threshold = numeric(),
+                     auc = numeric(),
+                     Sen = numeric(),
+                     Spe = numeric(),
+                     stringsAsFactors = FALSE)
+
+for (i in 1:1000) {
+  sample_rows &lt;- sample(dim(data2)[1], dim(data2)[1] * 0.7)
+  train_sampleNB3 &lt;- data2[sample_rows, ]
+  test_sampleNB3 &lt;- data2[-sample_rows, ]
+  
+  for (threshold in seq(0.1,0.9,0.1)) {
+    nb3model &lt;- naiveBayes(Attrition ~ ., data = train_sampleNB3)
+    nb3modelpred &lt;- predict(nb3model, test_sampleNB3[,1:17], type = "raw")
+    nb3modelclass = ifelse(nb3modelpred[,1]&gt;threshold,"0","1")
+    cmnb3 &lt;- confusionMatrix(table(nb3modelclass, test_sampleNB3$Attrition))
+    a &lt;- rocit(score = as.numeric(as.factor(nb3modelclass)), class = as.numeric(test_sampleNB3$Attrition))$AUC
+    nb_df_row &lt;- data.frame(iterations = i, threshold = threshold, auc = a, Sen = cmnb3$byClass[1], Spe = cmnb3$byClass[2])
+    nb_df &lt;- rbind(nb_df, nb_df_row)
+  }
+}
+
+nb_df_mean=nb_df%&gt;%group_by(threshold)%&gt;%summarise(mean=mean(auc))
+
+aggregate(auc ~  threshold,data = nb_df,FUN=mean)
+
+##   threshold       auc
+## 1       0.1 0.5987968
+## 2       0.2 0.6616905
+## 3       0.3 0.7041717
+## 4       0.4 0.7255447
+## 5       0.5 0.7319338
+## 6       0.6 0.7323235
+## 7       0.7 0.7244077
+## 8       0.8 0.7061661
+## 9       0.9 0.6806191
+
+ggplot(nb_df_mean, aes(x = threshold, y = mean)) +
+  geom_line() +ggtitle("Best Average AUC By Threshold")+
+  xlab("Threshold")+ylab("Average AUC")
+</code></pre></div></div> <p><img src="/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-13-1.png" alt=""></p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#testing previous specificity on a single run
+sample_rows &lt;- sample(dim(data2)[1], dim(data2)[1] * 0.7)
+train_sampleNB3 &lt;- data2[sample_rows, ]
+test_sampleNB3 &lt;- data2[-sample_rows, ]
+  
+nb3model=naiveBayes(Attrition~.,data=train_sampleNB3 )
+nb3modelpred=predict(nb3model,test_sampleNB3[,1:17],type = "raw")
+nb3modelclass &lt;- ifelse(nb3modelpred[,1] &gt; 0.6, "0", "1")
+#confusionMatrix(table(nb3modelclass,test_sampleNB3$Attrition))
+#a=rocit(score=as.numeric(as.factor(nb3modelclass)),class=as.numeric(test_sampleNB3$Attrition))
+
+#cm
+#a$AUC
+#plot(a)
+</code></pre></div></div> <ul> <li>Comment: best hyper parameter selection when threshold is 0.6 <br> <br> </li> </ul> <h2 id="model-selection-linear-regression">Model Selection (Linear Regression)</h2> <ul> <li> <p>Looking at linear relationship between each variable</p> </li> <li> <p>Determine its P value for significance</p> </li> <li> <p>Fit the model and find out model’s potential against all models we chose</p> </li> </ul> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>###################linear regression model
+
+#Using the standardized data from above dataZ
+datalm=data3
+
+
+#split data into training set and test set (linear regression)
+
+
+fit=glm(Attrition ~.,data=datalm,
+         family=binomial)
+#summary(fit)
+
+split=0.7
+sample_rows &lt;- sample(dim(datalm)[1], dim(datalm)[1] * split)
+train_samplelm &lt;- datalm[sample_rows, ]
+test_samplelm &lt;- datalm[-sample_rows, ]
+
+lmprob=predict(fit,test_samplelm,type="response")
+lmprob=ifelse(lmprob&gt;0.3,1,0)
+#confusionMatrix(table(lmprob,test_samplelm$Attrition))
+#a=rocit(score=as.numeric(as.factor(lmprob)),class=as.numeric(test_samplelm$Attrition))
+#a$AUC
+#plot(a)
+
+lm_model = data.frame(iteration = integer(),
+                      auc = numeric(),
+                      threshold = numeric(),
+                      Sensitivity = numeric(),
+                      Specificity = numeric(),
+                      stringsAsFactors = FALSE)
+rownames(lm_model)=NULL
+for (i in 1:1000) {
+  split = 0.7
+  sample_rows &lt;- sample(dim(datalm)[1], dim(datalm)[1] * split)
+  train_samplelm &lt;- datalm[sample_rows, ]
+  test_samplelm &lt;- datalm[-sample_rows, ]
+    fit &lt;- glm(Attrition ~   Department + DistanceFromHome + EnvironmentSatisfaction +
+                 JobInvolvement + JobSatisfaction + MaritalStatus + OverTime + WorkLifeBalance +
+                 YearsAtCompany + YearsInCurrentRole + YearsWithCurrManager,
+               data = train_samplelm, family = binomial)
+    for (threshold in seq(0.1, 0.6, 0.1)){
+    lmprob &lt;- predict(fit, test_samplelm, type = "response")
+    lmprob_class &lt;- ifelse(as.data.frame(lmprob)[,1] &gt; threshold, "1", "0")
+  cm_lm &lt;- confusionMatrix(table(as.factor(lmprob_class), test_samplelm$Attrition))
+
+    a &lt;- rocit(score = as.numeric(as.factor(lmprob_class)), class = as.numeric(test_samplelm$Attrition))$AUC
+
+    lm_model &lt;- rbind(lm_model, data.frame(iteration = i, auc = a, threshold = threshold,
+                       Sensitivity = cm_lm$overall[1], Specificity = cm_lm$overall[2]))
+  }
+}
+
+
+lm_model_data=lm_model %&gt;% group_by(threshold) %&gt;% summarise(mean_auc=mean(auc))
+
+ggplot(data = lm_model_data, aes(x = threshold, y = mean_auc)) + 
+  geom_line()+ggtitle("Best Average Result By Threshold")+ylab("Average AUC")+xlab("Threshold")
+</code></pre></div></div> <p><img src="/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-14-1.png" alt=""></p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>fit=glm(Attrition ~.,data=datalm,
+         family=binomial)
+#summary(fit)
+
+split=0.7
+sample_rows &lt;- sample(dim(datalm)[1], dim(datalm)[1] * split)
+train_samplelm &lt;- datalm[sample_rows, ]
+test_samplelm &lt;- datalm[-sample_rows, ]
+
+lmprob=predict(fit,test_samplelm,type="response")
+lmprob=ifelse(lmprob&gt;0.2,1,0)
+#confusionMatrix(table(lmprob,test_samplelm$Attrition))
+#a=rocit(score=as.numeric(as.factor(lmprob)),class=as.numeric(test_samplelm$Attrition))
+#a$AUC
+#plot(a)
+</code></pre></div></div> <ul> <li>Comment: selecting threshold 0.2 for best average result.</li> </ul> <p><br> <br></p> <h2 id="ensemble-models">Ensemble Models</h2> <ul> <li> <p>Selecting the best performing models from the above.</p> </li> <li> <p>Ensemble two or more through majority voting system.</p> </li> <li> <p>Tune in for the best results and get prepared for new data prediction.</p> </li> </ul> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#ensemble knn.cv and naive bayes together through majority vote
+data3=data2
+sample_rows &lt;- sample(dim(data3)[1], dim(data3)[1] * 0.7)
+train_sample &lt;- data3[sample_rows, ]
+test_sample &lt;- data3[-sample_rows, ]
+
+
+knncv &lt;- knn.cv(train = data3[,1:17], cl = as.numeric(data3$Attrition), k =31, prob = TRUE)
+
+probs = ifelse(knncv == "0",attributes(knncv)$prob, 1- attributes(knncv)$prob)
+
+NewClass = ifelse(probs &gt; 0.9, "0", "1")
+
+#table(NewClass,data3$Attrition)
+#confusionMatrix(table(NewClass,data3$Attrition))
+#a=rocit(score=as.numeric(as.factor(NewClass)),class=as.numeric(data3$Attrition))
+
+#a$AUC
+#plot(a)
+
+
+
+nb3model=naiveBayes(Attrition~.,data=data3 )
+nb3modelpred=predict(nb3model,data3[,1:17],type = "raw")
+nb3modelclass &lt;- ifelse(nb3modelpred[,1] &gt; 0.6, "0", "1")
+#confusionMatrix(table(nb3modelclass,data3$Attrition))
+#a=rocit(score=as.numeric(as.factor(nb3modelclass)),class=as.numeric(data3$Attrition))
+
+#a$AUC
+#plot(a)
+
+
+
+
+
+
+
+ensembleknncv &lt;- ifelse(nb3modelclass == 0 &amp; NewClass == 0, 0,
+                        ifelse(nb3modelclass == 1 &amp; NewClass == 1, 1, NewClass))
+
+
+#confusionMatrix(table(ensembleknncv,data3$Attrition))
+#a=rocit(score=as.numeric(as.factor(ensembleknncv)),class=as.numeric(data3$Attrition))
+
+#a$AUC
+#plot(a)
+</code></pre></div></div> <h2 id="predict-attrition">Predict (Attrition)</h2> <ul> <li> <p>Loading new data set “CaseStudy2CompSet No Attrition.csv”</p> </li> <li> <p>Pre-processing new data sets and standardized all new data sets with the same scale</p> </li> <li> <p>Selecting features that were important during training sets</p> </li> <li> <p>Fit the best model that were selected above and ensemble the result</p> </li> <li> <p>Write out the predictions in “FinalCompData”</p> </li> </ul> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#Predict Competition Set No Attrition
+#Pre processing new data
+
+
+CompData=read.csv(file = "CaseStudy2CompSet No Attrition.csv")
+CompData$Attrition=0
+CompData1 &lt;- CompData %&gt;%
+  mutate_if(is.character, as.factor) %&gt;%
+  mutate_if(is.factor, ~as.integer(factor(.))-1)
+
+CompData1=predict(preproc,CompData1)
+
+CompData1=CompData1[,Ttest$variable]
+#head(CompData1)
+#means = apply(data3[, 1:17], 2, mean)
+#sds = apply(data3[, 1:17], 2, sd)
+#CompData1_scaled &lt;- scale(CompData1, center = unname(means), scale = unname(sds))
+
+
+
+
+#Predict using NB
+nb_comp=predict(nb3model,CompData1,type = "raw")
+nb_comp_class &lt;- ifelse(nb_comp[,1] &gt; 0.6, "0", "1")
+
+#predict using KNN
+knn_comp &lt;- knn(data3[,1:17],CompData1, data3$Attrition, k =41, prob = TRUE)
+probs_comp = ifelse(knn_comp == "0",attributes(knn_comp)$prob, 1- attributes(knn_comp)$prob)
+NewClass_comp = ifelse(probs_comp &gt; 0.9, "0", "1")
+
+
+#Ensemble them together
+ensemble_comp&lt;- ifelse(nb_comp_class == 0 &amp; NewClass_comp == 0, 0,
+                        ifelse(nb_comp_class == 1 &amp; NewClass_comp == 1, 1, NewClass_comp))
+
+CompData$Results=ensemble_comp
+FinalCompData=CompData[,c("ID","Results")]
+FinalCompData$Results=ifelse(FinalCompData$Results==0,"No","Yes")
+write.csv(FinalCompData,"FinalCompData", row.names = FALSE)
+</code></pre></div></div> <h2 id="predict-monthlyincome">Predict (MonthlyIncome)</h2> <ul> <li> <p>Loading new data “CaseStudy2CompSet No Salary.csv”</p> </li> <li> <p>Similarly process the data like the above</p> </li> <li> <p>Selecting features that were important</p> </li> <li> <p>Ran the model and write out the predictions in “Final_lm_data”</p> </li> </ul> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#linear regression predicting 
+
+
+
+fit_pre_glm=glm(MonthlyIncome ~ Age+Department+JobRole+DistanceFromHome+JobInvolvement+JobLevel+
+           MaritalStatus+OverTime+StockOptionLevel+TotalWorkingYears+WorkLifeBalance+
+           YearsAtCompany+YearsInCurrentRole+YearsWithCurrManager,data=data3)
+
+predictedlm=predict(fit_pre_glm,newdata = data3)
+#data3$MonthlyIncome
+predictedlm = predictedlm * 6390.264 + 4597.696
+residual=data1$MonthlyIncome-predictedlm
+
+#sqrt(mean(residual^2))
+
+
+
+
+data_scaled = data_scaled[, !(colnames(data_scaled) %in% c("EmployeeCount", "Over18", "StandardHours", "response"))]
+fit_pre_glm=lm(MonthlyIncome ~.,data=data_scaled)
+#summary(fit_pre_glm)
+predictedlm=predict(fit_pre_glm,newdata = data_scaled)
+#data3$MonthlyIncome
+predictedlm = predictedlm * 6390.264 + 4597.696
+residual=data1$MonthlyIncome-predictedlm
+
+#sqrt(mean(residual^2))
+
+
+#loading competition data
+CompData_lm=read.csv(file = "CaseStudy2CompSet No Salary.csv")
+
+CompData_lm1=CompData_lm %&gt;%
+  mutate_if(is.character, as.factor) %&gt;%
+  mutate_if(is.factor, ~as.integer(factor(.)) - 1) 
+
+CompData_lm1$MonthlyIncome=1
+CompData_lm1=predict(preproc,CompData_lm1)
+
+
+#CompData_lm &lt;- CompData_lm[, colnames(data_scaled)[-which(colnames(data_scaled) == "MonthlyIncome")]]
+
+predicted_comp=predict(fit_pre_glm,newdata = CompData_lm1)
+predicted_comp=predicted_comp*6390.2643678  + 4597.6959741
+CompData_lm$MonthlyIncome=predicted_comp
+Final_lm_data=CompData[,c("ID","MonthlyIncome")]
+write.csv(Final_lm_data,"Final_lm_data", row.names = FALSE)
+</code></pre></div></div> <h2 id="conclusion--recommendation">Conclusion &amp; Recommendation</h2> <ul> <li> <p>With all the analyses and observations above, here are some recommendations we provide for future:</p> </li> <li> <p>Increasing employee monthly income is a potential retention strategy that should be considered, as it can improve employee motivation and job satisfaction. Financial incentives are a key factor in employee retention, and offering higher salaries or bonuses can help to reduce employee turnover.</p> </li> <li> <p>Married workers are less likely to leave their jobs than single or divorced workers, due to greater financial stability. Hiring more married workers could be a viable retention strategy for companies seeking to reduce attrition rates</p> </li> <li> <p>While overtime may be necessary in some industries or roles, it is important to be mindful of the potential negative effects on employee retention. Higher Overtime level can contribute to higher attrition rates</p> </li> <li> <p>Implementing a longevity plan can be a valuable retention strategy, as it offers incentives for employees to stay with the company over the long term. This could include benefits such as paid time off, flexible schedules, or retirement savings plans.</p> </li> <li> <p>Promotion opportunities are a crucial factor in employee retention, companies that offer clear guidelines for promotion and reward employees based on merit and performance are more likely to retain high-performing workers.</p> </li> <li> <p>Fostering communication and relationships among employees is a proven retention strategy that can help to create a positive and supportive work environment. Companies that encourage team-building activities, open communication channels, and regular feedback sessions are more likely to improve employee satisfaction and engagement, which can lead to lower attrition rates.</p> </li> </ul> <p><br> <br></p> </article> </div> </div> <footer class="fixed-bottom"> <div class="container mt-0"> © Copyright 2024 . Powered by <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Last edited: 2024-01-07 </div> </footer> <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> <script src="/al-folio/assets/js/bootstrap.bundle.min.js"></script> <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/js/mdb.min.js" integrity="sha256-NdbiivsvWt7VYCt6hYNT3h/th9vSTL4EDWeGs5SN3DA=" crossorigin="anonymous"></script> <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script> <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@4/imagesloaded.pkgd.min.js"></script> <script defer src="/al-folio/assets/js/masonry.js" type="text/javascript"></script> <script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.0.8/dist/medium-zoom.min.js" integrity="sha256-7PhEpEWEW0XXQ0k6kQrPKwuoIomz8R8IYyuU1Qew4P8=" crossorigin="anonymous"></script> <script defer src="/al-folio/assets/js/zoom.js?7b30caa5023af4af8408a472dc4e1ebb"></script> <script defer src="https://unpkg.com/bootstrap-table@1.22.1/dist/bootstrap-table.min.js"></script> <script src="/al-folio/assets/js/no_defer.js?d633890033921b33e0ceb13d22340a9c"></script> <script defer src="/al-folio/assets/js/common.js?acdb9690d7641b2f8d40529018c71a01"></script> <script defer src="/al-folio/assets/js/copy_code.js?9b43d6e67ddc7c0855b1478ee4c48c2d" type="text/javascript"></script> <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script> <script async src="https://badge.dimensions.ai/badge.js"></script> <script type="text/javascript">window.MathJax={tex:{tags:"ams"}};</script> <script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/tex-mml-chtml.js"></script> <script defer src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script> <script type="text/javascript">function progressBarSetup(){"max"in document.createElement("progress")?(initializeProgressElement(),$(document).on("scroll",function(){progressBar.attr({value:getCurrentScrollPosition()})}),$(window).on("resize",initializeProgressElement)):(resizeProgressBar(),$(document).on("scroll",resizeProgressBar),$(window).on("resize",resizeProgressBar))}function getCurrentScrollPosition(){return $(window).scrollTop()}function initializeProgressElement(){let e=$("#navbar").outerHeight(!0);$("body").css({"padding-top":e}),$("progress-container").css({"padding-top":e}),progressBar.css({top:e}),progressBar.attr({max:getDistanceToScroll(),value:getCurrentScrollPosition()})}function getDistanceToScroll(){return $(document).height()-$(window).height()}function resizeProgressBar(){progressBar.css({width:getWidthPercentage()+"%"})}function getWidthPercentage(){return getCurrentScrollPosition()/getDistanceToScroll()*100}const progressBar=$("#progress");window.onload=function(){setTimeout(progressBarSetup,50)};</script> </body> </html>
