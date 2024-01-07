@@ -12,7 +12,7 @@ category: fun
 In this project, I developed an interactive Minesweeper game using Python and the Pygame library. The game not only allows users to play Minesweeper with a graphical interface but also features an Artificial Intelligence (AI) agent capable of making moves based on logical deductions.
 
 
-![Additional Screenshot](/al-folio/assets/img/minesweeper/2024-01-06%20205328.png)
+![Additional Screenshot](/assets/img/minesweeper/2024-01-06%20205328.png)
 
 ## Technologies Used
 
@@ -47,8 +47,8 @@ This project was a rewarding experience that combined game development with arti
 
 ## Screenshots
 
-![Minesweeper Game Screenshot](/al-folio/assets/img/minesweeper/Screenshot%202024-01-06%20205523.png)
-![Additional Screenshot](/al-folio/assets/img/minesweeper/010602.png)
+![Minesweeper Game Screenshot](/assets/img/minesweeper/Screenshot%202024-01-06%20205523.png)
+![Additional Screenshot](/assets/img/minesweeper/010602.png)
 
 
 ## Check Out the Code

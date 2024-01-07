@@ -140,7 +140,7 @@ plt.show()
 
 
     
-![png](/al-folio/assets/img/GTSRB/output_9_0.png)
+![png](/assets/img/GTSRB/output_9_0.png)
 
 
     
@@ -169,7 +169,7 @@ for i in range(1,26):
 
 
     
-![png](/al-folio/assets/img/GTSRB/output_10_0.png)
+![png](/assets/img/GTSRB/output_10_0.png)
 
     
 
@@ -375,7 +375,7 @@ plt.show()
 
 
     
-![png](/al-folio/assets/img/GTSRB/output_25_0.png)
+![png](/assets/img/GTSRB/output_25_0.png)
 
     
 
@@ -436,7 +436,7 @@ sns.heatmap(df_cm, annot=True)
 
 
     
-![png](/al-folio/assets/img/GTSRB/output_30_1.png)
+![png](/assets/img/GTSRB/output_30_1.png)
 
     
 
@@ -528,7 +528,7 @@ plt.show()
 
 
     
-![png](/al-folio/assets/img/GTSRB/output_34_0.png)
+![png](/assets/img/GTSRB/output_34_0.png)
 
     
 

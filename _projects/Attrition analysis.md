@@ -22,7 +22,7 @@ category: work
 
 -   [Use Rshiny App](https://haitieliu.shinyapps.io/Project2/)
 
-![](/al-folio/assets/img/Rscript_files/figure-markdown_strict/logo.png)
+![](/assets/img/Rscript_files/figure-markdown_strict/logo.png)
 
 ## Prepration
 
@@ -133,7 +133,7 @@ loading needed packages
             panel.spacing.x = unit(2, "cm")) +
       guides(fill = FALSE)
 
-![](/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-4-1.png)
+![](/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-4-1.png)
 
 -   Comment: we can see that the most satisfied job roles are sales
     representative and research scientist
@@ -157,7 +157,7 @@ loading needed packages
             panel.spacing.x = unit(2, "cm")) +
       guides(fill = FALSE)
 
-![](/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-5-1.png)
+![](/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-5-1.png)
 
 -   Comment: single workers are likely to be more satisfied with their
     current role <br /> <br />
@@ -180,7 +180,7 @@ loading needed packages
             panel.spacing.x = unit(2, "cm")) +
       guides(fill = FALSE)
 
-![](/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-6-1.png)
+![](/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-6-1.png)
 
 -   Comment: the more distant you are from work the less satisfied you
     are <br /> <br />
@@ -201,7 +201,7 @@ loading needed packages
               axis.text = element_text(size = 12),
               legend.position = "none")
 
-![](/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-7-1.png)
+![](/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-7-1.png)
 
 -   Comment: monthly income is negatively correlated with attrition,
     increase monthly income is liley to reduce attrition rate <br />
@@ -218,7 +218,7 @@ loading needed packages
         geom_smooth(method = "lm", se = FALSE, color = "darkblue", size = 1.2) +
         theme_bw()
 
-![](/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-8-1.png)
+![](/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-8-1.png)
 
 -   Comment: attrition seems to be positively correlated with attrition,
     more overtime could mean more attrition <br /> <br />
@@ -262,7 +262,7 @@ loading needed packages
               plot.background = element_rect(fill = "white"),
               panel.background = element_rect(fill = "white"))
 
-![](/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-10-1.png)
+![](/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-10-1.png)
 
 -   Comment: fostering a good job involvement (communication and
     relationship around the workplace) could reduce attrition rate.
@@ -282,7 +282,7 @@ loading needed packages
                            name = "Marital Status",
                            labels = c("Divorced", "Married", "Single"))
 
-![](/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-11-1.png)
+![](/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-11-1.png)
 
 -   Comment: Single workers could be more likely to leave the company
     than married and divorced workers <br /> <br />
@@ -382,7 +382,7 @@ loading needed packages
       theme_bw() +
       theme(plot.title = element_text(hjust = 0.5))
 
-![](/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-12-1.png)
+![](/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-12-1.png)
 
     # Print first 10 rows of auc_df_knn
     #head(auc_df_knn, 10)
@@ -480,7 +480,7 @@ loading needed packages
       theme_bw() +
       theme(plot.title = element_text(hjust = 0.5))
 
-![](/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-12-2.png)
+![](/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-12-2.png)
 
     # Plot average AUC vs. k, with lines for each value of threshold
     ggplot(avg_auc, aes(x = k, y = auc, group = threshold, color = threshold)) +
@@ -491,7 +491,7 @@ loading needed packages
       theme_bw() +
       theme(plot.title = element_text(hjust = 0.5))
 
-![](/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-12-3.png)
+![](/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-12-3.png)
 
 -   Comment: According to the chart above the best hyper parameters for
     Knn and Knn.cv is when threshold equals to 0.8 and 0.9, and when k
@@ -552,7 +552,7 @@ loading needed packages
       geom_line() +ggtitle("Best Average AUC By Threshold")+
       xlab("Threshold")+ylab("Average AUC")
 
-![](/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-13-1.png)
+![](/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-13-1.png)
 
     #testing previous specificity on a single run
     sample_rows <- sample(dim(data2)[1], dim(data2)[1] * 0.7)
@@ -642,7 +642,7 @@ loading needed packages
     ggplot(data = lm_model_data, aes(x = threshold, y = mean_auc)) + 
       geom_line()+ggtitle("Best Average Result By Threshold")+ylab("Average AUC")+xlab("Threshold")
 
-![](/al-folio/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-14-1.png)
+![](/assets/img/Rscript_files/figure-markdown_strict/unnamed-chunk-14-1.png)
 
     fit=glm(Attrition ~.,data=datalm,
              family=binomial)
