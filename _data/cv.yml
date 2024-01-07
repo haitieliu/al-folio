@@ -2,96 +2,61 @@
   type: map
   contents:
     - name: Full Name
-      value: Albert Einstein
-    - name: Date of Birth
-      value: 14th March 1879
+      value: Haitie Liu
     - name: Languages
-      value: English, German
+      value: English, Mandarin
 
 - title: Education
   type: time_table
   contents:
-    - title: PhD
-      institution: University of Zurich, Zurich, Switzerland
-      year: 1905
+    - title: Master's Degree
+      institution: Southern Methodist University
+      year: 2024
       description:
-        - Description 1.
-        - Description 2.
-        - title: Description 3.
-          contents:
-            - Sub-description 1.
-            - Sub-description 2.
-    - title: Federal teaching diploma
-      institution: Eidgenössische Technische Hochschule, Zurich, Switzerland
-      year: 1900
+        - Data Science.
+        - Machine Learning / Business Analytics.
+    - title: Bachelor's Degree
+      institution: University of Washington
+      year: 2018
       description:
-        - Description 1.
-        - Description 2.
+        - Business Adminitration.
+        - Marketing/Management.
 
 - title: Experience
   type: time_table
   contents:
-    - title: Professor of Theoretical Physics
-      institution: Institute for Advanced Study, Princeton University
-      year: 1933 - 1955
+    - title: Graduate Study Researcher & Teaching Assistant
+      institution: Southern Methodist University, Dallas, TX
+      year: 2023-2024
       description:
-        - Description 1.
-        - Description 2.
-        - title: Description 3.
-          contents:
-            - Sub-description 1.
-            - Sub-description 2.
-    - title: Visiting Professor
-      institution: California Institute of Technology, Pasadena, California, US
-      year: 1933
-      description:
-        - Description 1.
-        - Description 2.
+        - Conduct weekly office hours for a class of 20 students, assisted students in mastering statistical and machine learning concepts through hands-on workshops.
+        - Collaborate with faculty in the creation of tutorials covering linear regression, multi-linear regression, logistic regression, classification, and machine learning models including Knn and decision trees.
+        - Develop and lead Python workshops, focusing on practical Python applications and machine learning models.
+        - Design, craft, and grade exams and quizzes, ensuring the curriculum remains current and effectively assesses student comprehension.
 
-    - title: Director
-      institution: Kaiser Wilhelm Institute for Physics, Berlin, Germany.
-      year: 1917-1933
-
-    - title: Professor of Theoretical Physics
-      institution: Karl-Ferdinand University, Prague, Czechoslovakia
-      year: 1911 - 1917
-      description:
-
-    - title: Associate Professor of Theoretical Physics
-      institution: University of Zurich, Zurich, Switzerland
-      year: 1909 - 1911
-
-- title: Open Source Projects
+- title: Certification
   type: time_table
   contents:
-    - title: <a href="https://github.com/alshedivat/al-folio">al-folio</a>
-      year: 2015-now
-      description: A beautiful, simple, clean, and responsive Jekyll theme for academics.
-
-- title: Honors and Awards
-  type: time_table
-  contents:
-    - year: 1921
-      items: 
-        - Nobel Prize in Physics 
-        - Matteucci Medal
-    - year: 2029
-      items: 
-        - Max Planck Medal
+    - title: <a href="https://www.linkedin.com/in/haitie-liu-a3b9ab122/details/certifications/1635553798690/single-media-viewer/?profileId=ACoAAB5nRg8B8OglRqD2xrgmXVEyKLGnvfi0zFw">Harvard's CS50 Artificial Intelligence Certificate</a>
+      year: Dec 2023
+      description: 11 projects focusing on Artificial Intelligence
+      
+    - title: <a href="https://www.credly.com/badges/0106a927-672c-48ad-97ec-54fefd8b05fb/linked_in_profile">Tableau Desktop Specialist</a>
+      year: Jul 2023
+      description: Foundational skills and understanding of Tableau
+      
 
 - title: Academic Interests
   type: nested_list
   contents:
-    - title: Topic 1.
-      items: 
-        - Description 1.
-        - Description 2.
-    - title: Topic 2.
-      items:
-        - Description 1.
-        - Description 2.
+    - title: Machine Learning.
+      #items: 
+        #- Description 1.
+        #- Description 2.
+    - title: Business Analytics.
+
 
 - title: Other Interests
   type: list
   contents:
-    - <u>Hobbies:</u> Hobby 1, Hobby 2, etc.
+    - <u>Hobbies:</u> Reading, Video Games, etc.
