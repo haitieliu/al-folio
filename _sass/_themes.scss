@@ -2,7 +2,7 @@
  * Themes
  ******************************************************************************/
 
-:root {
+html[data-theme='dark'] {
   --global-bg-color: #{$white-color};
   --global-code-bg-color: #{$code-bg-color-light};
   --global-text-color: #{$black-color};
@@ -47,7 +47,7 @@
   }
 }
 
-html[data-theme='dark'] {
+:root {
   --global-bg-color: #{$grey-color-dark};
   --global-code-bg-color: #{$code-bg-color-dark};
   --global-text-color: #{$grey-color-light};
